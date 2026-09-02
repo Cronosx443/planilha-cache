@@ -1,5 +1,5 @@
 {
-  "name": "Minha Planilha de Controle",
+  "id": "Minha Planilha de Controle",
   "short_name": "Planilha",
   "description": "Aplicativo de planilha de controle financeiro offline",
   "start_url": "./index.html",
