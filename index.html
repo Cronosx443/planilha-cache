@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Profissional de Cachê - Autosave + Agenda</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #217dbb;
+            --secondary: #34495e;
+            --danger: #e74c3c;
+            --danger-dark: #c0392b;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --bg: #f0f2f5;
+            --text: #333;
+            --muted: #666;
+            --border: #ddd;
+            --card: #fff;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        header {
+            background: linear-gradient(135deg, #1e90ff, #3498db);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+        }
+        header h1 {
+            color: white;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        footer { background-color: var(--secondary); color: white; text-align: center; padding: 15px; margin-top: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        .card {
+            background-color: var(--card);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { margin-bottom: 5px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background: white;
+        }
+        input:focus, textarea:focus, select:focus { outline: 2px solid rgba(52, 152, 219, .25); border-color: var(--primary); }
+        button {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            background-color: var(--primary);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 5px;
+        }
+        button:hover { background-color: var(--primary-dark); }
+        button:active { transform: translateY(1px); }
+        .button-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-secondary:hover { background-color: #263849; }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #1f8f4e; }
+        .btn-warning { background-color: var(--warning); }
+        .btn-warning:hover { background-color: #d68910; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: var(--danger-dark); }
+        .delete-btn, .edit-btn { width: auto; padding: 6px 10px; font-size: 14px; margin: 2px; }
+        .delete-btn { background-color: var(--danger); }
+        .edit-btn { background-color: var(--warning); }
+        .table-actions { white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid var(--border); padding: 8px; text-align: left; word-break: break-word; vertical-align: top; }
+        th { background-color: #ecf0f1; color: #2c3e50; }
+        tbody tr:nth-child(even) { background: #fafafa; }
+        .toolbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; margin-top: 10px; }
+        .summary-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .summary-item { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
+        .summary-item strong { display: block; font-size: 18px; color: #2c3e50; }
+        .status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #eef7ff;
+            border: 1px solid #cfe8ff;
+            color: #24577a;
+            font-size: 14px;
+        }
+        .muted { color: var(--muted); font-size: 14px; }
+        .hidden { display: none !important; }
+        #print-area { display: none; }
+
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --text: #e5e7eb;
+            --muted: #a8b3c7;
+            --border: #334155;
+            --card: #172033;
+            --secondary: #24344d;
+        }
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3 { color: #e5e7eb; }
+        body.dark-mode label { color: #d1d5db; }
+        body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: #0b1220; color: #e5e7eb; border-color: #334155; }
+        body.dark-mode th { background: #223047; color: #e5e7eb; }
+        body.dark-mode tbody tr:nth-child(even) { background: #111827; }
+        body.dark-mode .summary-item, body.dark-mode .dashboard-card { background: #111827; border-color: #334155; }
+        body.dark-mode .summary-item strong { color: #e5e7eb; }
+        body.dark-mode .status { background: #10233a; border-color: #1e4f7a; color: #cfe8ff; }
+        .top-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+        .top-actions button { width: auto; min-width: 160px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); }
+        .top-actions button:hover { background: rgba(255,255,255,.28); }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
+        .dashboard-card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
+        .dashboard-card span { color: var(--muted); font-size: 13px; }
+        .dashboard-card strong { display: block; font-size: 22px; margin-top: 4px; }
+        #monthlyChart { width: 100%; height: 260px; border: 1px solid var(--border); border-radius: 10px; margin-top: 15px; background: var(--card); }
+        .paid-badge, .pending-badge { display: inline-block; border-radius: 999px; padding: 4px 9px; font-weight: bold; font-size: 12px; }
+        .paid-badge { background: #d5f5e3; color: #1e7e45; }
+        .pending-badge { background: #fff3cd; color: #8a5a00; }
+        body.dark-mode .paid-badge { background: #123524; color: #98f0bd; }
+        body.dark-mode .pending-badge { background: #3a2a0a; color: #ffd166; }
+        .paid-row td { opacity: .82; }
+        .paid-btn { background-color: #16a085; }
+        .paid-btn:hover { background-color: #117a65; }
+        .drive-note { background: #eef7ff; border: 1px dashed #8bc6f2; border-radius: 10px; padding: 12px; margin-top: 12px; }
+        body.dark-mode .drive-note { background: #10233a; border-color: #1e4f7a; }
+
+        /* Arquivo de eventos pagos por mês */
+        .paid-month-block {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-top: 14px;
+            overflow: hidden;
+        }
+        .paid-month-header {
+            background: #eafaf1;
+            color: #1e7e45;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        body.dark-mode .paid-month-header { background: #123524; color: #98f0bd; }
+        .paid-month-header .month-total { font-size: 16px; }
+        .paid-month-body { overflow-x: auto; padding: 0 4px; }
+        .paid-month-body table { margin-top: 0; }
+        .paid-empty { padding: 14px; text-align: center; color: var(--muted); }
+
+        @media print {
+            @page { size: A4 landscape; }
+            body > *:not(#print-area), .no-print { display: none !important; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+        }
+        @media (min-width: 768px) { .button-group { flex-direction: row; flex-wrap: wrap; } .button-group button { flex: 1 1 180px; } }
+    
+
+        /* Impressão/PDF com mais contraste e visual profissional */
+        .professional-print {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #ffffff;
+            color: #17202a;
+            padding: 26px;
+        }
+        .print-header {
+            background: linear-gradient(135deg, #0f4c81, #1e90ff);
+            color: #ffffff;
+            padding: 22px 26px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(15, 76, 129, 0.25);
+        }
+        .print-header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 0.2px;
+        }
+        .print-header p {
+            margin: 6px 0 0;
+            font-size: 13px;
+            opacity: 0.95;
+        }
+        .print-badge {
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 8px;
+            padding: 10px 14px;
+            min-width: 120px;
+            text-align: right;
+        }
+        .print-badge span {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+        .print-badge strong {
+            display: block;
+            font-size: 16px;
+            margin-top: 3px;
+        }
+        .print-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 14px;
+            margin: 18px 0;
+        }
+        .print-info-card {
+            border: 1px solid #bfc9d4;
+            background: #f6f8fb;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .print-info-card h3 {
+            color: #0f4c81;
+            margin: 0 0 8px;
+            font-size: 15px;
+            border-bottom: 2px solid #0f4c81;
+            padding-bottom: 5px;
+        }
+        .print-info-card p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+            font-size: 11.5px;
+            border: 1px solid #2c3e50;
+        }
+        .print-table th {
+            background: #17202a;
+            color: #ffffff;
+            border: 1px solid #17202a;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 700;
+        }
+        .print-table td {
+            border: 1px solid #9aa7b4;
+            padding: 7px 6px;
+            color: #17202a;
+            vertical-align: top;
+        }
+        .print-total-box {
+            margin-top: 18px;
+            margin-left: auto;
+            width: 290px;
+            background: #0b6b3a;
+            color: #ffffff;
+            border-radius: 9px;
+            padding: 14px 18px;
+            text-align: right;
+            box-shadow: 0 3px 10px rgba(11, 107, 58, 0.22);
+        }
+        .print-total-box span {
+            display: block;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.8px;
+            opacity: 0.95;
+        }
+        .print-total-box strong {
+            display: block;
+            font-size: 26px;
+            margin-top: 4px;
+        }
+        .print-footer-note {
+            margin-top: 22px;
+            padding-top: 10px;
+            border-top: 1px solid #c8d1dc;
+            color: #596775;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .professional-print {
+                padding: 12mm;
+            }
+            .print-header,
+            .print-total-box,
+            .print-table th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PLANILHA DE CÁLCULO DE CACHÊ</h1>
+        <div class="top-actions no-print">
+            <button type="button" id="themeToggleBtn">Modo escuro 🌙</button>
+            <button type="button" id="quickBackupBtn">Backup rápido</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="margin-top:0;">Seus Dados</h2>
+            <div class="form-grid autosave-fields">
+                <div class="form-group"><label for="userName">Seu Nome Completo</label><input type="text" id="userName" placeholder="Para identificação no relatório"></div>
+                <div class="form-group"><label for="userCpf">Seu CPF</label><input type="text" id="userCpf" placeholder="000.000.000-00"></div>
+            </div>
+            <h3 style="margin-top: 20px;">Dados para Pagamento</h3>
+            <div class="form-grid autosave-fields">
+                <div class="form-group"><label for="userPix">Chave PIX</label><input type="text" id="userPix" placeholder="E-mail, CPF, celular ou chave aleatória"></div>
+                <div class="form-group"><label for="userBank">Banco</label><input type="text" id="userBank" placeholder="Ex: Banco do Brasil, Nubank"></div>
+                <div class="form-group"><label for="userAgency">Agência</label><input type="text" id="userAgency" placeholder="Ex: 0001"></div>
+                <div class="form-group"><label for="userAccount">Conta Corrente</label><input type="text" id="userAccount" placeholder="Ex: 12345-6"></div>
+            </div>
+            <div class="status" id="saveStatus">Salvamento automático ativo.</div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Adicionar Novo Evento</h2>
+            <form id="addEventForm">
+                <input type="hidden" id="editingEventId">
+                <div class="form-grid">
+                    <div class="form-group"><label for="eventDate">Dia do Evento</label><input type="date" id="eventDate"></div>
+                    <div class="form-group"><label for="eventName">Nome do Evento</label><input type="text" id="eventName" placeholder="Ex: Casamento João e Maria"></div>
+                    <div class="form-group"><label for="eventLocation">Local</label><input type="text" id="eventLocation" placeholder="Ex: Buffet Estrela"></div>
+                    <div class="form-group"><label for="startTime">Hora de Entrada</label><input type="time" id="startTime"></div>
+                    <div class="form-group"><label for="endTime">Hora de Saída</label><input type="time" id="endTime"></div>
+                    <div class="form-group"><label for="baseFee">Valor do Cachê (R$)</label><input type="number" id="baseFee" placeholder="1500" step="0.01" min="0"></div>
+                    <div class="form-group" style="grid-column: 1 / -1;"><label for="observations">Observações</label><textarea id="observations" rows="2" placeholder="Ex: Equipamento extra necessário"></textarea></div>
+                </div>
+                <div class="button-group">
+                    <button type="button" id="addEventBtn">Adicionar Evento</button>
+                    <button type="button" id="cancelEditBtn" class="btn-secondary hidden">Cancelar edição</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Eventos Pendentes</h2>
+            <div class="toolbar no-print">
+                <div class="form-group"><label for="searchInput">Buscar</label><input type="text" id="searchInput" placeholder="Evento, local ou observação"></div>
+                <div class="form-group"><label for="monthFilter">Filtrar por mês</label><input type="month" id="monthFilter"></div>
+                <div class="form-group"><button type="button" id="clearFiltersBtn" class="btn-secondary">Limpar filtros</button></div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="eventsTable">
+                    <thead><tr><th>Sel.</th><th>Data</th><th>Evento</th><th>Local</th><th>Entrada</th><th>Saída</th><th>Observações</th><th>Total</th><th>Status</th><th>Pag.</th><th class="no-print">Ação</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="summary-box">
+                <div class="summary-item">Eventos cadastrados<strong id="eventCount">0</strong></div>
+                <div class="summary-item">Total geral<strong id="grandTotal">R$ 0,00</strong></div>
+                <div class="summary-item">Total selecionado<strong id="selectedTotal">R$ 0,00</strong></div>
+                <div class="summary-item">Total pago<strong id="paidTotal">R$ 0,00</strong></div>
+                <div class="summary-item">Total pendente<strong id="pendingTotal">R$ 0,00</strong></div>
+            </div>
+        </div>
+
+        <div class="card summary-section">
+            <h3>Ações de Faturamento</h3>
+            <p>Selecione os eventos pendentes na tabela e escolha uma ação abaixo.</p>
+            <p class="muted">O lembrete usa a mesma regra da sua planilha: evento até dia 15 gera pagamento no dia 25; evento após dia 15 gera pagamento no dia 10 do mês seguinte.</p>
+            <div class="button-group">
+                <button id="generatePdfBtn">Gerar Relatório em PDF</button>
+                <button id="createReminderBtn" class="btn-success">Criar Lembrete de Pagamento na Agenda</button>
+                <button id="prepareEmailBtn">Preparar E-mail de Cobrança</button>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <h2 style="margin-top: 0;">📁 Arquivo de Eventos Já Pagos</h2>
+            <p class="muted">Histórico organizado mês a mês, apenas para consulta e conferência futura. Não entra nas seleções de cobrança.</p>
+            <div id="paidArchiveContainer"></div>
+        </div>
+
+        <div class="card no-print">
+            <h3>Dashboard mensal</h3>
+            <p class="muted">Resumo visual dos cachês cadastrados. O gráfico usa os eventos salvos no navegador.</p>
+            <div class="dashboard-grid">
+                <div class="dashboard-card"><span>Melhor mês</span><strong id="bestMonth">-</strong></div>
+                <div class="dashboard-card"><span>Próximo recebimento</span><strong id="nextPayment">-</strong></div>
+                <div class="dashboard-card"><span>Eventos pagos</span><strong id="paidCount">0</strong></div>
+                <div class="dashboard-card"><span>Eventos pendentes</span><strong id="pendingCount">0</strong></div>
+            </div>
+            <canvas id="monthlyChart" width="1000" height="260"></canvas>
+        </div>
+
+        <div class="card no-print">
+            <h3 style="margin-top:0;">🧾 Relatório Anual (Imposto de Renda)</h3>
+            <p class="muted">Gera um relatório com o total recebido no ano escolhido (considera apenas eventos marcados como pagos), para uso na declaração de IR.</p>
+            <div class="toolbar">
+                <div class="form-group"><label for="taxYearSelect">Ano</label><select id="taxYearSelect"></select></div>
+                <div class="form-group"><button type="button" id="generateTaxReportBtn" class="btn-warning">Gerar Relatório Anual</button></div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <h3>Backup e Segurança</h3>
+            <p class="muted">O autosave guarda os dados neste navegador. O backup permite levar ou restaurar seus dados em outro computador/navegador.</p>
+            <div class="button-group">
+                <button id="exportBackupBtn" class="btn-secondary">Exportar Backup</button>
+                <button id="importBackupBtn" class="btn-warning">Importar Backup</button>
+                <button id="saveDriveBtn" class="btn-success">Salvar no Google Drive</button>
+                <button id="clearDataBtn" class="btn-danger">Apagar Tudo</button>
+            </div>
+            <div class="drive-note muted">Como este arquivo roda direto no navegador, ele não consegue gravar automaticamente no Google Drive sem login/API. O botão “Salvar no Google Drive” exporta um backup e abre o Drive para você enviar o arquivo.</div>
+            <input type="file" id="backupFileInput" accept="application/json,.json" class="hidden">
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 - Ferramenta de Controle</p></footer>
+    <div id="print-area"></div>
+
+    <script>
+        const STORAGE_KEY = 'planilhaCacheAgendaAutosaveV2';
+        let events = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            bindEvents();
+            renderEvents();
+            updateTotals();
+            populateTaxYearSelect();
+            updateSaveStatus('Dados carregados. Salvamento automático ativo.');
+        });
+
+        function bindEvents() {
+            document.getElementById('addEventBtn').addEventListener('click', saveEventFromForm);
+            document.getElementById('cancelEditBtn').addEventListener('click', clearEventForm);
+            document.getElementById('generatePdfBtn').addEventListener('click', handleGenerateReport);
+            document.getElementById('createReminderBtn').addEventListener('click', handleCreateReminder);
+            document.getElementById('prepareEmailBtn').addEventListener('click', handlePrepareEmail);
+            document.getElementById('exportBackupBtn').addEventListener('click', exportBackup);
+            document.getElementById('quickBackupBtn').addEventListener('click', exportBackup);
+            document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+            document.getElementById('saveDriveBtn').addEventListener('click', saveToGoogleDrive);
+            document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('backupFileInput').click());
+            document.getElementById('backupFileInput').addEventListener('change', importBackup);
+            document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+            document.getElementById('searchInput').addEventListener('input', renderEvents);
+            document.getElementById('monthFilter').addEventListener('change', renderEvents);
+            document.getElementById('generateTaxReportBtn').addEventListener('click', handleGenerateTaxReport);
+            document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('monthFilter').value = '';
+                renderEvents();
+            });
+            ['userName','userCpf','userPix','userBank','userAgency','userAccount'].forEach(id => {
+                document.getElementById(id).addEventListener('input', saveData);
+            });
+        }
+
+        function getUserData() {
+            return {
+                name: document.getElementById('userName').value.trim(),
+                cpf: document.getElementById('userCpf').value.trim(),
+                pix: document.getElementById('userPix').value.trim(),
+                bank: document.getElementById('userBank').value.trim(),
+                agency: document.getElementById('userAgency').value.trim(),
+                account: document.getElementById('userAccount').value.trim()
+            };
+        }
+
+        function setUserData(userData = {}) {
+            document.getElementById('userName').value = userData.name || '';
+            document.getElementById('userCpf').value = userData.cpf || '';
+            document.getElementById('userPix').value = userData.pix || '';
+            document.getElementById('userBank').value = userData.bank || '';
+            document.getElementById('userAgency').value = userData.agency || '';
+            document.getElementById('userAccount').value = userData.account || '';
+        }
+
+        function saveData() {
+            const payload = {
+                version: 2,
+                savedAt: new Date().toISOString(),
+                theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+                userData: getUserData(),
+                events
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            updateSaveStatus('Salvo automaticamente em ' + new Date().toLocaleString('pt-BR'));
+        }
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return;
+                const payload = JSON.parse(saved);
+                setUserData(payload.userData || {});
+                events = Array.isArray(payload.events) ? payload.events.map(normalizeEvent) : [];
+                applyTheme(payload.theme || localStorage.getItem('planilhaCacheTheme') || 'light');
+            } catch (error) {
+                alert('Não foi possível carregar os dados salvos. Use um backup se necessário.');
+            }
+        }
+
+        function updateSaveStatus(text) {
+            document.getElementById('saveStatus').textContent = text;
+        }
+
+        function expectedPaymentDate(eventDateStr) {
+            const d = new Date(eventDateStr + 'T00:00:00');
+            return paymentDateFromLastEvent(d).toISOString().slice(0, 10);
+        }
+
+        function normalizeEvent(event) {
+            return {
+                ...event,
+                id: event.id || crypto.randomUUID(),
+                paid: Boolean(event.paid),
+                paidAt: event.paidAt || '',
+                expectedPaymentDate: event.expectedPaymentDate || expectedPaymentDate(event.eventDate)
+            };
+        }
+
+        function calculateEvent({ eventDate, eventName, eventLocation, startTime, endTime, baseFee, observations }) {
+            const base = parseFloat(baseFee);
+            const startDateTime = new Date(`${eventDate}T${startTime}`);
+            let endDateTime = new Date(`${eventDate}T${endTime}`);
+            if (endDateTime <= startDateTime) endDateTime.setDate(endDateTime.getDate() + 1);
+            const totalHours = (endDateTime - startDateTime) / (1000 * 60 * 60);
+            const overtimeCost = totalHours > 12 ? (totalHours - 12) * (base / 12) : 0;
+            const totalValue = base + overtimeCost;
+            return {
+                id: document.getElementById('editingEventId').value || crypto.randomUUID(),
+                eventDate,
+                eventName: eventName.trim(),
+                eventLocation: eventLocation.trim() || '-',
+                observations: observations.trim() || '-',
+                startTime,
+                endTime,
+                totalHours: Number(totalHours.toFixed(2)),
+                baseFee: Number(base.toFixed(2)),
+                overtimeCost: Number(overtimeCost.toFixed(2)),
+                totalValue: Number(totalValue.toFixed(2)),
+                expectedPaymentDate: expectedPaymentDate(eventDate),
+                paid: false,
+                paidAt: ''
+            };
+        }
+
+        function saveEventFromForm() {
+            const formData = {
+                eventDate: document.getElementById('eventDate').value,
+                eventName: document.getElementById('eventName').value,
+                eventLocation: document.getElementById('eventLocation').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                baseFee: document.getElementById('baseFee').value,
+                observations: document.getElementById('observations').value
+            };
+
+            if (!formData.eventDate || !formData.eventName.trim() || !formData.startTime || !formData.endTime || isNaN(parseFloat(formData.baseFee)) || parseFloat(formData.baseFee) <= 0) {
+                alert('Erro: Verifique se Data, Nome, Horários e Cachê foram preenchidos corretamente.');
+                return;
+            }
+
+            const editingId = document.getElementById('editingEventId').value;
+            const duplicate = events.some(event => event.eventDate === formData.eventDate && event.id !== editingId);
+            if (duplicate) {
+                alert('Aviso: Já existe um evento registrado para esta data. Edite o existente ou escolha outra data.');
+                return;
+            }
+
+            const event = calculateEvent(formData);
+            if (editingId) {
+                const oldEvent = events.find(item => item.id === editingId) || {};
+                event.paid = Boolean(oldEvent.paid);
+                event.paidAt = oldEvent.paidAt || '';
+                events = events.map(item => item.id === editingId ? event : item);
+            } else {
+                events.push(event);
+            }
+            events.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+            clearEventForm();
+            renderEvents();
+            saveData();
+            populateTaxYearSelect();
+        }
+
+        function clearEventForm() {
+            document.getElementById('addEventForm').reset();
+            document.getElementById('editingEventId').value = '';
+            document.getElementById('addEventBtn').textContent = 'Adicionar Evento';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function editEvent(id) {
+            const event = events.find(item => item.id === id);
+            if (!event) return;
+            document.getElementById('editingEventId').value = event.id;
+            document.getElementById('eventDate').value = event.eventDate;
+            document.getElementById('eventName').value = event.eventName;
+            document.getElementById('eventLocation').value = event.eventLocation === '-' ? '' : event.eventLocation;
+            document.getElementById('startTime').value = event.startTime;
+            document.getElementById('endTime').value = event.endTime;
+            document.getElementById('baseFee').value = event.baseFee;
+            document.getElementById('observations').value = event.observations === '-' ? '' : event.observations;
+            document.getElementById('addEventBtn').textContent = 'Salvar Alterações';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('addEventForm').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function deleteEvent(id) {
+            if (!confirm('Tem certeza que deseja apagar este evento?')) return;
+            events = events.filter(item => item.id !== id);
+            renderEvents();
+            saveData();
+            populateTaxYearSelect();
+        }
+
+        function togglePaid(id) {
+            const event = events.find(item => item.id === id);
+            if (!event) return;
+            event.paid = !event.paid;
+            event.paidAt = event.paid ? new Date().toISOString().slice(0, 10) : '';
+            renderEvents();
+            saveData();
+        }
+
+        function applyTheme(theme) {
+            document.body.classList.toggle('dark-mode', theme === 'dark');
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.textContent = theme === 'dark' ? 'Modo claro ☀️' : 'Modo escuro 🌙';
+            localStorage.setItem('planilhaCacheTheme', theme);
+            drawMonthlyChart();
+        }
+
+        function toggleTheme() {
+            const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+            applyTheme(next);
+            saveData();
+        }
+
+        function saveToGoogleDrive() {
+            exportBackup();
+            window.open('https://drive.google.com/drive/my-drive', '_blank');
+        }
+
+        function monthLabel(monthKey) {
+            const [year, month] = monthKey.split('-');
+            return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+        }
+
+        function monthLabelLong(monthKey) {
+            const [year, month] = monthKey.split('-');
+            return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        }
+
+        function updateDashboard() {
+            const paid = events.filter(e => e.paid);
+            const pending = events.filter(e => !e.paid);
+            document.getElementById('paidCount').textContent = String(paid.length);
+            document.getElementById('pendingCount').textContent = String(pending.length);
+            const byMonth = {};
+            events.forEach(e => {
+                const key = e.eventDate.slice(0, 7);
+                byMonth[key] = (byMonth[key] || 0) + Number(e.totalValue || 0);
+            });
+            const best = Object.entries(byMonth).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('bestMonth').textContent = best ? `${monthLabel(best[0])} · ${formatMoney(best[1])}` : '-';
+            const next = pending.map(e => e.expectedPaymentDate || expectedPaymentDate(e.eventDate)).sort()[0];
+            document.getElementById('nextPayment').textContent = next ? formatDate(next) : '-';
+            drawMonthlyChart();
+        }
+
+        function drawMonthlyChart() {
+            const canvas = document.getElementById('monthlyChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const months = {};
+            events.forEach(e => {
+                const key = e.eventDate.slice(0, 7);
+                months[key] = (months[key] || 0) + Number(e.totalValue || 0);
+            });
+            const entries = Object.entries(months).sort().slice(-12);
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#e5e7eb' : '#2c3e50';
+            const gridColor = isDark ? '#334155' : '#e5e7eb';
+            ctx.fillStyle = textColor;
+            ctx.font = '14px Arial';
+            if (!entries.length) {
+                ctx.fillText('Adicione eventos para visualizar o gráfico mensal.', 24, 45);
+                return;
+            }
+            const pad = 45;
+            const chartW = canvas.width - pad * 2;
+            const chartH = canvas.height - 75;
+            const max = Math.max(...entries.map(([,v]) => v), 1);
+            ctx.strokeStyle = gridColor;
+            ctx.beginPath();
+            ctx.moveTo(pad, 20);
+            ctx.lineTo(pad, 20 + chartH);
+            ctx.lineTo(pad + chartW, 20 + chartH);
+            ctx.stroke();
+            const barGap = 10;
+            const barW = Math.max(18, (chartW / entries.length) - barGap);
+            entries.forEach(([key, value], i) => {
+                const x = pad + i * (barW + barGap) + 5;
+                const h = (value / max) * (chartH - 20);
+                const y = 20 + chartH - h;
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(x, y, barW, h);
+                ctx.fillStyle = textColor;
+                ctx.font = '12px Arial';
+                ctx.save();
+                ctx.translate(x + 2, 20 + chartH + 15);
+                ctx.rotate(-0.35);
+                ctx.fillText(monthLabel(key), 0, 0);
+                ctx.restore();
+            });
+            ctx.fillStyle = textColor;
+            ctx.font = '13px Arial';
+            ctx.fillText('Receita mensal em cachês', pad, 16);
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+        }
+
+        function formatMoney(value) {
+            return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR');
+        }
+
+        function getFilteredEvents() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const month = document.getElementById('monthFilter').value;
+            return events.filter(event => {
+                if (event.paid) return false;
+                const text = `${event.eventName} ${event.eventLocation} ${event.observations}`.toLowerCase();
+                const matchesSearch = !q || text.includes(q);
+                const matchesMonth = !month || event.eventDate.startsWith(month);
+                return matchesSearch && matchesMonth;
+            });
+        }
+
+        function renderEvents() {
+            const tableBody = document.querySelector('#eventsTable tbody');
+            const visibleEvents = getFilteredEvents();
+            tableBody.innerHTML = '';
+            if (visibleEvents.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="11" style="text-align:center; color:#666;">Nenhum evento pendente encontrado.</td></tr>';
+                updateTotals();
+                renderPaidArchive();
+                return;
+            }
+            visibleEvents.forEach(event => {
+                const row = document.createElement('tr');
+                if (event.paid) row.classList.add('paid-row');
+                const statusHtml = event.paid ? '<span class="paid-badge">Pago</span>' : '<span class="pending-badge">Pendente</span>';
+                const paymentLabel = event.paid && event.paidAt ? formatDate(event.paidAt) : formatDate(event.expectedPaymentDate || expectedPaymentDate(event.eventDate));
+                row.innerHTML = `
+                    <td><input type="checkbox" class="event-checkbox" data-id="${event.id}"></td>
+                    <td>${formatDate(event.eventDate)}</td>
+                    <td>${escapeHtml(event.eventName)}</td>
+                    <td>${escapeHtml(event.eventLocation)}</td>
+                    <td>${escapeHtml(event.startTime)}</td>
+                    <td>${escapeHtml(event.endTime)}</td>
+                    <td>${escapeHtml(event.observations)}</td>
+                    <td><strong>${formatMoney(event.totalValue)}</strong></td>
+                    <td>${statusHtml}</td>
+                    <td>${paymentLabel}</td>
+                    <td class="no-print table-actions">
+                        <button class="paid-btn" type="button" onclick="togglePaid('${event.id}')">${event.paid ? 'Desmarcar pago' : 'Marcar como pago'}</button>
+                        <button class="edit-btn" type="button" onclick="editEvent('${event.id}')">Editar</button>
+                        <button class="delete-btn" type="button" onclick="deleteEvent('${event.id}')">Apagar</button>
+                    </td>`;
+                tableBody.appendChild(row);
+            });
+            document.querySelectorAll('.event-checkbox').forEach(cb => cb.addEventListener('change', updateTotals));
+            updateTotals();
+            renderPaidArchive();
+        }
+
+        function renderPaidArchive() {
+            const container = document.getElementById('paidArchiveContainer');
+            if (!container) return;
+            const paidEvents = events.filter(e => e.paid);
+            if (paidEvents.length === 0) {
+                container.innerHTML = '<div class="paid-empty">Nenhum evento pago ainda.</div>';
+                return;
+            }
+
+            const groups = {};
+            paidEvents.forEach(e => {
+                const key = e.eventDate.slice(0, 7);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(e);
+            });
+
+            const orderedKeys = Object.keys(groups).sort().reverse();
+
+            container.innerHTML = orderedKeys.map(key => {
+                const list = groups[key].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+                const total = list.reduce((sum, e) => sum + Number(e.totalValue || 0), 0);
+                const rows = list.map(e => `
+                    <tr>
+                        <td>${formatDate(e.eventDate)}</td>
+                        <td>${escapeHtml(e.eventName)}</td>
+                        <td>${escapeHtml(e.eventLocation)}</td>
+                        <td>${escapeHtml(e.startTime)} - ${escapeHtml(e.endTime)}</td>
+                        <td><strong>${formatMoney(e.totalValue)}</strong></td>
+                        <td>${e.paidAt ? formatDate(e.paidAt) : '-'}</td>
+                        <td class="no-print"><button class="paid-btn" type="button" onclick="togglePaid('${e.id}')">Desmarcar pago</button></td>
+                    </tr>
+                `).join('');
+
+                return `
+                    <div class="paid-month-block">
+                        <div class="paid-month-header">
+                            <span>📅 ${monthLabelLong(key).replace(/^\\w/, c => c.toUpperCase())}</span>
+                            <span class="month-total">Total: ${formatMoney(total)} (${list.length} evento${list.length > 1 ? 's' : ''})</span>
+                        </div>
+                        <div class="paid-month-body">
+                            <table>
+                                <thead><tr><th>Data</th><th>Evento</th><th>Local</th><th>Horário</th><th>Valor</th><th>Pago em</th><th class="no-print">Ação</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateTotals() {
+            const grandTotal = events.reduce((sum, event) => sum + Number(event.totalValue || 0), 0);
+            const paidTotal = events.filter(e => e.paid).reduce((sum, event) => sum + Number(event.totalValue || 0), 0);
+            const pendingTotal = events.filter(e => !e.paid).reduce((sum, event) => sum + Number(event.totalValue || 0), 0);
+            const selectedIds = Array.from(document.querySelectorAll('.event-checkbox:checked')).map(cb => cb.dataset.id);
+            const selectedTotal = events.filter(e => selectedIds.includes(e.id)).reduce((sum, event) => sum + Number(event.totalValue || 0), 0);
+            document.getElementById('eventCount').textContent = String(events.length);
+            document.getElementById('grandTotal').textContent = formatMoney(grandTotal);
+            document.getElementById('selectedTotal').textContent = formatMoney(selectedTotal);
+            document.getElementById('paidTotal').textContent = formatMoney(paidTotal);
+            document.getElementById('pendingTotal').textContent = formatMoney(pendingTotal);
+            updateDashboard();
+        }
+
+        function getSelectedData() {
+            const userData = getUserData();
+            if (!userData.name || !userData.cpf) { alert('Por favor, preencha seu Nome Completo e CPF.'); return null; }
+            if (!userData.pix && (!userData.bank || !userData.agency || !userData.account)) {
+                alert('Preencha a Chave PIX ou os dados bancários completos.'); return null;
+            }
+            const selectedIds = Array.from(document.querySelectorAll('.event-checkbox:checked')).map(cb => cb.dataset.id);
+            const eventsData = events.filter(event => selectedIds.includes(event.id));
+            if (eventsData.length === 0) { alert('Nenhum evento selecionado.'); return null; }
+            const totalSum = eventsData.reduce((sum, event) => sum + Number(event.totalValue || 0), 0);
+            const lastEvent = eventsData.reduce((latest, event) => !latest || event.eventDate > latest.eventDate ? event : latest, null);
+            return { userData, totalSum, eventsData, lastEventDate: new Date(lastEvent.eventDate + 'T00:00:00') };
+        }
+
+        function paymentDateFromLastEvent(lastEventDate) {
+            const paymentDate = new Date(lastEventDate);
+            if (lastEventDate.getDate() <= 15) {
+                paymentDate.setDate(25);
+            } else {
+                paymentDate.setMonth(paymentDate.getMonth() + 1);
+                paymentDate.setDate(10);
+            }
+            return paymentDate;
+        }
+
+        function googleDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        function handleCreateReminder() {
+            const data = getSelectedData();
+            if (!data) return;
+            const paymentDate = paymentDateFromLastEvent(data.lastEventDate);
+            const dateToken = googleDate(paymentDate);
+            const eventTitle = `Lembrete: Receber Pagamento de ${formatMoney(data.totalSum)}`;
+            const eventDetails = [
+                `Lembrete para receber o pagamento referente aos eventos faturados.`,
+                `Valor total: ${formatMoney(data.totalSum)}.`,
+                '',
+                'Eventos:',
+                ...data.eventsData.map(e => `- ${e.eventName} (${formatDate(e.eventDate)}) - ${formatMoney(e.totalValue)}`),
+                '',
+                `Profissional: ${data.userData.name}`,
+                `CPF: ${data.userData.cpf}`,
+                `PIX: ${data.userData.pix || '-'}`,
+                `Banco: ${data.userData.bank || '-'} | Agência: ${data.userData.agency || '-'} | Conta: ${data.userData.account || '-'}`
+            ].join('\n');
+            const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${dateToken}/${dateToken}&details=${encodeURIComponent(eventDetails)}&sf=true&output=xml`;
+            window.open(googleCalendarUrl, '_blank');
+        }
+
+        function handleGenerateReport() {
+            const data = getSelectedData();
+            if (!data) return;
+
+            const printArea = document.getElementById('print-area');
+
+            const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m]));
+
+            const rows = data.eventsData.map((e, index) => `
+                <tr style="background:${index % 2 === 0 ? '#ffffff' : '#f4f7fb'};">
+                    <td>${new Date(e.eventDate).toLocaleDateString('pt-BR')}</td>
+                    <td><strong>${safe(e.eventName)}</strong></td>
+                    <td>${safe(e.eventLocation)}</td>
+                    <td>${safe(e.observations)}</td>
+                    <td style="text-align:center;">${safe(e.startTime)}</td>
+                    <td style="text-align:center;">${safe(e.endTime)}</td>
+                    <td style="text-align:right;">${safe(e.totalHours)}h</td>
+                    <td style="text-align:right;">R$ ${Number(e.baseFee).toFixed(2)}</td>
+                    <td style="text-align:right;">R$ ${Number(e.overtimeCost).toFixed(2)}</td>
+                    <td style="text-align:right;"><strong>R$ ${Number(e.totalValue).toFixed(2)}</strong></td>
+                </tr>
+            `).join('');
+
+            let paymentInfoHtml = '';
+            if (data.userData.pix) {
+                paymentInfoHtml += `<p><strong>Chave PIX:</strong> ${safe(data.userData.pix)}</p>`;
+            }
+            if (data.userData.bank || data.userData.agency || data.userData.account) {
+                paymentInfoHtml += `<p><strong>Banco:</strong> ${safe(data.userData.bank || '-')} &nbsp; | &nbsp; <strong>Agência:</strong> ${safe(data.userData.agency || '-')} &nbsp; | &nbsp; <strong>Conta:</strong> ${safe(data.userData.account || '-')}</p>`;
+            }
+
+            printArea.innerHTML = `
+                <div class="professional-print">
+                    <div class="print-header">
+                        <div>
+                            <h1>Relatório de Serviços Prestados</h1>
+                            <p>Documento de cobrança referente aos eventos selecionados</p>
+                        </div>
+                        <div class="print-badge">
+                            <span>Emissão</span>
+                            <strong>${new Date().toLocaleDateString('pt-BR')}</strong>
+                        </div>
+                    </div>
+
+                    <div class="print-info-grid">
+                        <div class="print-info-card">
+                            <h3>Profissional</h3>
+                            <p><strong>Nome:</strong> ${safe(data.userData.name)}</p>
+                            <p><strong>CPF:</strong> ${safe(data.userData.cpf)}</p>
+                        </div>
+                        <div class="print-info-card">
+                            <h3>Dados para Pagamento</h3>
+                            ${paymentInfoHtml}
+                        </div>
+                    </div>
+
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Evento</th>
+                                <th>Local</th>
+                                <th>Observação</th>
+                                <th>Entrada</th>
+                                <th>Saída</th>
+                                <th>Duração</th>
+                                <th>Cachê</th>
+                                <th>Extra</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+
+                    <div class="print-total-box">
+                        <span>Total geral</span>
+                        <strong>R$ ${Number(data.totalSum).toFixed(2)}</strong>
+                    </div>
+
+                    <div class="print-footer-note">
+                        Relatório gerado automaticamente pela Planilha de Cálculo de Cachê.
+                    </div>
+                </div>
+            `;
+
+            window.print();
+        }
+
+        function handlePrepareEmail() {
+            const data = getSelectedData();
+            if (!data) return;
+            const eventDetailsForEmail = data.eventsData.map(e => {
+                let detail = `- ${e.eventName} (${formatDate(e.eventDate)}) (${formatMoney(e.totalValue)})`;
+                if (e.observations && e.observations !== '-') detail += ` | Obs: ${e.observations}`;
+                return detail;
+            });
+            const emailBody = `Olá,\n\nReferente aos serviços prestados no período.\n\nResumo dos eventos:\n${eventDetailsForEmail.join('\n')}\n\nO valor total para pagamento é de ${formatMoney(data.totalSum)}.\n\n--- Dados para Pagamento ---\nPIX: ${data.userData.pix}\nBanco: ${data.userData.bank}\nAgência: ${data.userData.agency}\nConta: ${data.userData.account}\n\nAtenciosamente,\n${data.userData.name}\nCPF: ${data.userData.cpf}`;
+            const mailtoLink = `mailto:?subject=${encodeURIComponent('Cobrança de Serviços Prestados')}&body=${encodeURIComponent(emailBody)}`;
+            window.location.href = mailtoLink;
+        }
+
+        function populateTaxYearSelect() {
+            const select = document.getElementById('taxYearSelect');
+            if (!select) return;
+            const years = Array.from(new Set(events.map(e => e.eventDate.slice(0, 4)))).sort().reverse();
+            const currentYear = String(new Date().getFullYear());
+            if (!years.includes(currentYear)) years.unshift(currentYear);
+            const previousValue = select.value;
+            select.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+            if (years.includes(previousValue)) select.value = previousValue;
+        }
+
+        function handleGenerateTaxReport() {
+            const year = document.getElementById('taxYearSelect').value;
+            if (!year) { alert('Selecione um ano.'); return; }
+
+            const userData = getUserData();
+            if (!userData.name || !userData.cpf) { alert('Preencha seu Nome Completo e CPF.'); return; }
+
+            const yearEvents = events.filter(e => e.paid && e.eventDate.startsWith(year))
+                .sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+
+            if (yearEvents.length === 0) {
+                alert('Nenhum evento pago encontrado para o ano selecionado.');
+                return;
+            }
+
+            const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[m]));
+
+            const totalYear = yearEvents.reduce((sum, e) => sum + Number(e.totalValue || 0), 0);
+
+            const rows = yearEvents.map((e, index) => `
+                <tr style="background:${index % 2 === 0 ? '#ffffff' : '#f4f7fb'};">
+                    <td>${formatDate(e.eventDate)}</td>
+                    <td><strong>${safe(e.eventName)}</strong></td>
+                    <td>${safe(e.eventLocation)}</td>
+                    <td style="text-align:right;"><strong>R$ ${Number(e.totalValue).toFixed(2)}</strong></td>
+                    <td>${e.paidAt ? formatDate(e.paidAt) : '-'}</td>
+                </tr>
+            `).join('');
+
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = `
+                <div class="professional-print">
+                    <div class="print-header">
+                        <div>
+                            <h1>Relatório Anual de Rendimentos</h1>
+                            <p>Referente ao ano-calendário ${year} — uso para Declaração de Imposto de Renda</p>
+                        </div>
+                        <div class="print-badge">
+                            <span>Emissão</span>
+                            <strong>${new Date().toLocaleDateString('pt-BR')}</strong>
+                        </div>
+                    </div>
+
+                    <div class="print-info-grid">
+                        <div class="print-info-card">
+                            <h3>Profissional</h3>
+                            <p><strong>Nome:</strong> ${safe(userData.name)}</p>
+                            <p><strong>CPF:</strong> ${safe(userData.cpf)}</p>
+                        </div>
+                        <div class="print-info-card">
+                            <h3>Resumo do Ano</h3>
+                            <p><strong>Ano-base:</strong> ${year}</p>
+                            <p><strong>Total de eventos pagos:</strong> ${yearEvents.length}</p>
+                            <p><strong>Total recebido no ano:</strong> R$ ${totalYear.toFixed(2)}</p>
+                        </div>
+                    </div>
+
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>Data do evento</th>
+                                <th>Evento</th>
+                                <th>Local</th>
+                                <th>Valor recebido</th>
+                                <th>Pago em</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+
+                    <div class="print-total-box">
+                        <span>Total recebido em ${year}</span>
+                        <strong>R$ ${totalYear.toFixed(2)}</strong>
+                    </div>
+
+                    <div class="print-footer-note">
+                        Este documento é um relatório auxiliar gerado automaticamente. Consulte seu contador para a declaração oficial do Imposto de Renda.
+                    </div>
+                </div>
+            `;
+
+            window.print();
+        }
+
+        function exportBackup() {
+            const payload = {
+                exportedAt: new Date().toISOString(),
+                app: 'App Profissional de Cachê',
+                userData: getUserData(),
+                events
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup-planilha-cache-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const payload = JSON.parse(reader.result);
+                    if (!Array.isArray(payload.events)) throw new Error('Backup inválido');
+                    if (!confirm('Importar este backup vai substituir os dados atuais desta planilha. Continuar?')) return;
+                    setUserData(payload.userData || {});
+                    events = payload.events.map(normalizeEvent);
+                    renderEvents();
+                    saveData();
+                    populateTaxYearSelect();
+                    alert('Backup importado com sucesso.');
+                } catch (error) {
+                    alert('Não foi possível importar o backup. Verifique se o arquivo está correto.');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (!confirm('Tem certeza que deseja apagar todos os dados salvos nesta planilha?')) return;
+            if (!confirm('Essa ação apaga seus dados do navegador. Faça um backup antes se quiser guardar. Confirmar?')) return;
+            events = [];
+            setUserData({});
+            localStorage.removeItem(STORAGE_KEY);
+            clearEventForm();
+            renderEvents();
+            populateTaxYearSelect();
+            updateSaveStatus('Dados apagados. Salvamento automático ativo.');
+        }
+    </script>
+</body>
+</html>
