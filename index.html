@@ -1201,5 +1201,13 @@
             updateSaveStatus('Dados apagados. Salvamento automático ativo.');
         }
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/planilha-cache/sw.js')
+      .then(() => console.log('Service Worker registrado!'))
+      .catch((err) => console.log('Erro ao registrar SW:', err));
+  }
+</script>
+
 </body>
 </html>
