@@ -1,24 +1,22 @@
 {
-  "id": "Minha Planilha de Controle",
+  "id": "/planilha-cache/",
+  "name": "Planilha",
   "short_name": "Planilha",
-  "description": "Aplicativo de planilha de controle financeiro offline",
-  "start_url": "./index.html",
+  "start_url": "/planilha-cache/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
-  "orientation": "portrait",
+  "theme_color": "#000000",
+  "description": "Aplicativo de planilha de controle financeiro offline",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
